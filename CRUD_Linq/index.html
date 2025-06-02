@@ -1,0 +1,341 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Management</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Adjust padding for fixed navbar to prevent content overlap */
+        body {
+            padding-top: 56px;
+            background-color: #f8f9fa; /* Light background color for the page */
+        }
+        /* Styling for the form section */
+        .form-section {
+            background-color: #ffffff; /* White background */
+            padding: 30px; /* Inner spacing */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+            margin-bottom: 30px; /* Space below the form section */
+        }
+        /* Styling for the table section */
+        .table-section {
+            background-color: #ffffff; /* White background */
+            padding: 30px; /* Inner spacing */
+            border-radius: 8px; /* Rounded corners */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+        }
+            /* Add a pointer cursor to table rows to indicate they are clickable */
+            .table-section tbody tr {
+                cursor: pointer;
+            }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="#">My App</a> <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ml-auto">
+                <li class="nav-item active">
+                    <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Contact us</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Blog</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="form-section">
+                    <h2 class="mb-4 text-center">CRUD In Linq</h2>
+                    <form id="dataForm">
+                        <div class="form-group">
+                            <div class="col-6">
+                                <label for="name">Name:</label>
+                                <input type="text" class="form-control" id="name" placeholder="Enter name">
+                            </div>
+                            <div class="col-6">
+                                <label for="age">Age:</label>
+                                <input id="age" type="number" class="form-control" placeholder="Enter age">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-6">
+                                <label for="phone">Phone No.:</label>
+                                <input type="text" class="form-control" id="phone" placeholder="Enter phone number">
+                            </div>
+                            <div class="col-6">
+                                <label for="sex">Sex:</label>
+                                <select class="form-control" id="sex">
+                                    <option>Male</option>
+                                    <option>Female</option>
+                                    <option>Other</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-around mt-4">
+                            <button type="button" id="lnkSave" class="btn btn-primary">Save</button>
+                            <button type="button" id="lnkUpdate" class="btn btn-info">Update</button>
+                            <button type="button" id="lnkDelete" class="btn btn-danger">Delete</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="table-section">
+                    <h2 class="mb-4 text-center">Data Display</h2>
+                    <div class="table-responsive">
+                        <table id="EmpTable" class="table table-striped table-bordered">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Age</th>
+                                    <th>Phone No.</th>
+                                    <th>Sex</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dataTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        // Get references to the form input elements
+        var empid = null, nameInput = "", ageInput = "", phoneInput = "", sexSelect = "";
+
+        $(document).ready(function () {
+            loadAllEmp();
+          
+            $('body').on('click', '#EmpTable tbody tr[data-id]', function () {
+                empid = $(this).data('id');
+                if (!empid || !empid.length) return false;
+                var tr = $(this);
+
+                $.ajax({
+                    type: "POST",
+                    url: "EmpWebservices.asmx/GetEmployee",
+                    contentType: "application/json;charset=utf-8",
+                    data: JSON.stringify({ EmpID: empid }),
+                    dataType: 'json',
+                    success: function (response) {
+                        const rData = response.d;                      
+                        $('#name').val(rData.EmpName);
+                        $('#age').val(rData.EmpAge);
+                        $('#phone').val(rData.EmpPhone);
+                        $('#sex').val(rData.EmpSex);                        
+                    },
+                    error: function (xhr, status, error) {
+                        console.log("Error:" + xhr.responseText);
+                        alert("Failed to load emloyee data!");
+                    }
+                });
+            });
+
+            //// Add a click event listener to the table body
+            //dataTableBody.addEventListener('click', function (event) {
+            //    event.preventDefault();
+            //    // Find the closest table row (<tr>) to the clicked element
+            //    const clickedRow = event.target.closest('tr');
+
+            //    // Ensure a row was actually clicked and it's not the header row
+            //    if (clickedRow && clickedRow.parentElement === dataTableBody) {
+            //        // Get all the cells (td) in the clicked row
+            //        const cells = clickedRow.querySelectorAll('td');
+            //        console.log(cells);
+
+            //        // Extract data from the cells (skipping the first cell which is '#')
+            //        // The order of cells corresponds to the order of inputs: Name, Age, Phone No., Sex
+            //        const name = cells[0].textContent;
+            //        const age = cells[1].textContent;
+            //        const phone = cells[2].textContent;
+            //        const sex = cells[3].textContent;
+
+            //        $('#name').val(name);
+            //        $('#age').val(age);
+            //        $('#phone').val(phone);
+            //        $('#sex').val(sex);
+            //    }
+            //});
+
+            function clearInputFields() {
+                $('#name').val('');
+                $('#age').val('');
+                $('#phone').val('');
+                //$('#sex').val('');
+                $('#sex')
+            }
+
+            function loadAllEmp() {
+                $.ajax({
+                    type: "POST",
+                    url: "EmpWebservices.asmx/GetAllEmployees",
+                    contentType: "application/json;charset=utf-8",
+                    data: {},
+                    dataType: 'json',
+                    success: function (response) {
+                        $('#EmpTable tbody').empty();
+                        let emp = response.d;
+                        if (emp && Array.isArray(emp)) {
+
+                            emp.forEach((item) => {
+
+                                var row = $('<tr data-id="' + item.EmpID + '"></tr>');
+                                row.append($('<td>' + item.EmpName + '</td>'));
+                                row.append($('<td>' + item.EmpAge + '</td>'));
+                                row.append($('<td>' + item.EmpPhone + '</td>'));
+                                row.append($('<td>' + item.EmpSex + '</td>'));
+                                $('#EmpTable tbody').append(row);
+                            });
+                        }
+                        if (!emp || emp.length == 0) {
+                            row = $('<tr><td class="text-center">No Data</td></tr>');
+                            $('#EmpTable tbody').append(row);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log("Error:" + xhr.responseText);
+                    }
+                });
+            }
+
+            //UPDATE
+            $('#lnkUpdate').on('click', function (e) {
+                e.preventDefault();
+
+                nameInput = $('#name').val();
+                ageInput = $('#age').val();
+                phoneInput = $('#phone').val();
+                sexSelect = $('#sex').val();
+
+
+                const empData = {
+                    EmpID: empid,
+                    EmpName: nameInput,
+                    Age: ageInput,
+                    Phone: phoneInput,
+                    Sex: sexSelect
+                };
+                
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json;charset=utf-8",
+                    url: "EmpWebservices.asmx/UpdateEmployee",
+                    data: JSON.stringify(empData),
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.d) {                           
+                            clearInputFields()
+                            loadAllEmp();
+                            alert("Employee details updated successfully!");                            
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr.responseText);
+                        alert("Error updating employee data!");
+                    }
+                });
+            });
+
+            //DELETE
+            $('#lnkDelete').on('click', function (e) {
+                e.preventDefault();
+
+                if (!empid && empid == null) {
+                    alert("Error retriving Employee ID");
+                    return false;
+                }
+
+                const empData = {
+                    EmpID: empid           
+                };
+                
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json;charset=utf-8",
+                    url: "EmpWebservices.asmx/DeleteEmployee",
+                    data: JSON.stringify(empData),
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.d) {
+                            clearInputFields()
+                            loadAllEmp();
+                            alert("Employee details deleted successfully!");                           
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr.responseText);
+                        alert("Error deleting employee data!");
+                    }
+                });
+            });
+
+            //SAVE
+            $('#lnkSave').on('click', function (e) {
+                e.preventDefault();
+
+                nameInput = $('#name').val();
+                ageInput = $('#age').val();
+                phoneInput = $('#phone').val();
+                sexSelect = $('#sex').val();
+
+
+                const empData = {
+                    EmpID: empid,
+                    EmpName: nameInput,
+                    Age: ageInput,
+                    Phone: phoneInput,
+                    Sex: sexSelect
+                };
+
+                //sending tenant data using AJAX
+                $.ajax({
+                    type: "POST",
+                    contentType: "application/json;charset=utf-8",
+                    url: "EmpWebservices.asmx/SaveEmployee",
+                    data: JSON.stringify(empData),
+                    dataType: 'json',
+                    success: function (response) {
+                        if (response.d) {
+                            clearInputFields()
+                            loadAllEmp();
+                            alert("Employee details saved successfully!");
+                            console.log("Success:" + response.d);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr.responseText);
+                        alert("Error saving employee data!");
+                    }
+                });
+            });
+
+
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+database name is crustest
+
+CREATE TABLE [dbo].[employees](
+	[Emp_ID] [varchar](36) NOT NULL,
+	[Emp_Name] [nvarchar](100) NOT NULL,
+	[Age] [text] NULL,
+	[PhoneNo] [text] NULL,
+	[Sex] [text] NOT NULL,
+ CONSTRAINT [PK_employees] PRIMARY KEY CLUSTERED 
+(
+	[Emp_ID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON, OPTIMIZE_FOR_SEQUENTIAL_KEY = OFF) ON [PRIMARY]
+) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+GO
